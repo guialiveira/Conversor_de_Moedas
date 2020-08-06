@@ -2,4 +2,4 @@
 
 Conversor de moedas em tempo real
 
-<img src="prints/conversor_de_moedas.git" width="200">
+![](prints/conversor_de_moedas.gif)
