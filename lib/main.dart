@@ -43,16 +43,40 @@ class _HomeState extends State<Home> {
   double dolar;
   double euro;
 
+  void _clearAll(){ //apaga campos
+    realController.text = "";
+    dolarController.text = "";
+    euroController.text = "";
+  }
+
   void _realChanged(String text) {
-    print(text);
+    if(text.isEmpty) {
+      _clearAll();
+      return;
+    }
+    double real = double.parse(text);
+    dolarController.text = (real/dolar).toStringAsFixed(2);//Mostra 2 digitos
+    euroController.text = (real/euro).toStringAsFixed(2);//Mostra 2 digitos
   }
 
   void _dolarChanged(String text) {
-    print(text);
+    if(text.isEmpty) {
+      _clearAll();
+      return;
+    }
+    double dolar = double.parse(text);
+    realController.text = (dolar * this.dolar).toStringAsFixed(2);////this.dolar pega a varial dolar que já existe fora da função
+    euroController.text = (dolar * this.dolar / euro).toStringAsFixed(2);//Convertendo para real para depois converter para euro
   }
 
   void _euroChanged(String text) {
-    print(text);
+    if(text.isEmpty) {
+      _clearAll();
+      return;
+    }
+    double euro = double.parse(text);
+    realController.text = (euro * this.euro).toStringAsFixed(2);//Mostra 2 digitos
+    dolarController.text = (euro * this.euro/ dolar).toStringAsFixed(2);//Mostra 2 digitos
   }
 
   Widget build(BuildContext context) {
@@ -118,7 +142,7 @@ Widget buildTexatFild(String label, String prefix, TextEditingController c, Func
   return TextField(
       controller: c,
       onChanged: f,
-      keyboardType: TextInputType.number,
+      keyboardType: TextInputType.numberWithOptions(decimal: true),
       decoration: InputDecoration(
           labelText: label,
           labelStyle: TextStyle(color: Colors.amber),
