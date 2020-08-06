@@ -5,12 +5,115 @@ import 'dart:convert';
 
 const request = "https://api.hgbrasil.com/finance?format=json&key=b2116ce3";
 
-void main() async{
+void main() async {
+  runApp(
+    MaterialApp(
+      home: Home(),
+      theme: ThemeData(
+          hintColor: Colors.amber,
+          primaryColor: Colors.white,
+          inputDecorationTheme: InputDecorationTheme(
+            enabledBorder:
+                OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+            focusedBorder:
+                OutlineInputBorder(borderSide: BorderSide(color: Colors.amber)),
+            hintStyle: TextStyle(color: Colors.amber),
+          )),
+    ),
+  );
+}
 
-  http.Response response = await http.get(request); //await faz ficar esperando a resposta
-  print(json.decode(response.body)["results"]["currencies"]["USD"]);
+Future<Map> getData() async {
+  http.Response response =
+      await http.get(request); //await faz ficar esperando a resposta
+  return json.decode(response.body);
+}
 
-  runApp(MaterialApp(
-    home: Container()
-  ));
+class Home extends StatefulWidget {
+  @override
+  _HomeState createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  @override
+  double dolar;
+  double euro;
+
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: Text("\$ Conversor \$"),
+        backgroundColor: Colors.amber,
+        centerTitle: true,
+      ),
+      body: FutureBuilder<Map>(
+        //Map pq o sjon vai retornar um map
+        future: getData(), //pedindo dados para o futuro
+        builder: (context, snapshot) {
+          //builder expecificar oque vai ser mostrado na tela em cada um dos casos
+          switch (snapshot.connectionState) {
+            case ConnectionState.none: // se não tiver conectado
+            case ConnectionState.waiting: //ou esperando uma conecção
+              return Center(
+                  child: Text(
+                "Carregando Dados...",
+                style: TextStyle(color: Colors.amber, fontSize: 25.0),
+                textAlign: TextAlign.center,
+              ));
+            default: // Default vai ser caso os dados tenham sido obitidos
+              if (snapshot.hasError) {
+                // caso tenha retornado um erro
+                return Center(
+                    child: Text(
+                  "Erro ao Carregar Dados :(",
+                  style: TextStyle(color: Colors.amber, fontSize: 25.0),
+                  textAlign: TextAlign.center,
+                ));
+              } else {
+                //caso tenha dado certo
+                dolar = snapshot.data["results"]["currencies"]["USD"]["buy"];
+                euro = snapshot.data["results"]["currencies"]["EUR"]["buy"];
+
+                return SingleChildScrollView(//Tela que rola
+                  padding: EdgeInsets.all(10.0),
+                  child: Column(
+                    children: <Widget>[
+                      Icon(Icons.monetization_on,
+                          size: 150.0, color: Colors.amber),
+                      TextField(
+                          decoration: InputDecoration(
+                              labelText: "Reais",
+                              labelStyle: TextStyle(color: Colors.amber),
+                              border: OutlineInputBorder(),
+                              prefixText: "R\$"),
+                          style:
+                              TextStyle(color: Colors.amber, fontSize: 25.0)),
+                      Divider(),
+                      TextField(
+                          decoration: InputDecoration(
+                              labelText: "Dólares",
+                              labelStyle: TextStyle(color: Colors.amber),
+                              border: OutlineInputBorder(),
+                              prefixText: "US\$"),
+                          style:
+                          TextStyle(color: Colors.amber, fontSize: 25.0)),
+                      Divider(),
+                      TextField(
+                          decoration: InputDecoration(
+                              labelText: "Euros",
+                              labelStyle: TextStyle(color: Colors.amber),
+                              border: OutlineInputBorder(),
+                              prefixText: "€"),
+                          style:
+                          TextStyle(color: Colors.amber, fontSize: 25.0)),
+                    ],
+                  ),
+                );
+              }
+          }
+        },
+      ),
+    );
+  }
 }
